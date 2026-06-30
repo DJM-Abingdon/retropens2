@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPORTS NET LIVE: Physics Retro Cup '96 (Google Sheets Cloud Link)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+    <style>
+        :root {
+            --primary-neon: #00ff66;
+            --secondary-neon: #00e5ff;
+            --accent-magenta: #ff005b;
+            --alert-amber: #ffaa00;
+            --tv-dark: #0a0f1d;
+            --glass-bg: rgba(13, 21, 41, 0.85);
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #040814;
+            color: #ffffff;
+            margin: 0;
+            padding: 15px;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .tv-frame {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--tv-dark);
+            border: 4px solid #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.15);
+            padding: 20px;
+            position: relative;
+        }
+
+        .broadcast-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--secondary-neon);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .broadcast-title {
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #fff, var(--secondary-neon));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-reset-nav {
+            background: transparent;
+            border: 1px solid var(--accent-magenta);
+            color: var(--accent-magenta);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .btn-reset-nav:hover {
+            background: var(--accent-magenta);
+            color: #ffffff;
+            box-shadow: 0 0 12px var(--accent-magenta);
+        }
+
+        .live-badge {
+            background: var(--accent-magenta);
+            color: white;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .screen { display: none; }
+        .active { display: block !important; }
+
+        .config-card {
+            background: var(--glass-bg);
+            border: 1px solid #223554;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            font-size: 11px;
+            color: var(--secondary-neon);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            background: #070d1a;
+            border: 1px solid #223554;
+            color: #fff;
+            padding: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        select:focus, input[type="text"]:focus {
+            border-color: var(--primary-neon);
+        }
+
+        .cloud-sync-box {
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px dashed var(--secondary-neon);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .sync-input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sync {
+            background: #131e36;
+            border: 1px solid var(--secondary-neon);
+            color: var(--secondary-neon);
+            padding: 0 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-sync:hover {
+            background: var(--secondary-neon);
+            color: #040814;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, var(--primary-neon), #00b344);
+            color: #040814;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 15px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 255, 102, 0.3);
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 102, 0.5);
+        }
+
+        .tv-scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, #0d1529, #16223d);
+            border-left: 5px solid var(--primary-neon);
+            padding: 12px 20px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .scoreboard-team {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .team-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .shot-trackers {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .tracker-slot {
+            width: 14px;
+            height: 14px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            border-radius: 50%;
+        }
+
+        .tracker-slot.scored {
+            background: var(--primary-neon);
+            box-shadow: 0 0 8px var(--primary-neon);
+        }
+
+        .tracker-slot.focused-slot {
+            border-color: var(--secondary-neon);
+            box-shadow: 0 0 6px var(--secondary-neon);
+        }
+
+        .tracker-slot.missed {
+            background: var(--accent-magenta);
+            box-shadow: 0 0 8px var(--accent-magenta);
+        }
+
+        .live-score-center {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            background: #040814;
+            padding: 2px 16px;
+            border-radius: 4px;
+            border: 1px solid #334155;
+        }
+
+        .ticker-wrapper {
+            background: #000;
+            padding: 6px;
+            overflow: hidden;
+            white-space: nowrap;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            border: 1px solid #1e293b;
+        }
+
+        .ticker-content {
+            display: inline-block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            color: var(--secondary-neon);
+            animation: scrollTicker 25s linear infinite;
+        }
+
+        @keyframes scrollTicker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .tv-quiz-overlay {
+            background: rgba(4, 8, 20, 0.95);
+            border: 2px solid var(--secondary-neon);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .quiz-meta-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+        .quiz-question-box {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .tv-options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .tv-opt-btn {
+            background: #131e36;
+            border: 1px solid #2d3f66;
+            color: #fff;
+            padding: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .tv-opt-btn:hover {
+            background: #1e2f54;
+            border-color: var(--primary-neon);
+        }
+
+        #broadcast-progress-container {
+            width: 100%;
+            height: 6px;
+            background: #111b30;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        #broadcast-progress-bar {
+            width: 100%;
+            height: 100%;
+            background: var(--primary-neon);
+            transition: width 0.1s linear;
+        }
+
+        #stadium-canvas-wrap {
+            position: relative;
+            width: 840px;
+            height: 440px;
+            margin: 0 auto;
+            border: 3px solid #1e293b;
+            border-radius: 6px;
+            background: #143d1f;
+        }
+
+        canvas { display: block; }
+
+        .broadcast-log {
+            margin-top: 15px;
+            background: #090f1c;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: #64748b;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="tv-frame">
+        
+        <div class="broadcast-header">
+            <div class="broadcast-title">⚡ PHYSICS RETRO CUP '96</div>
+            <div class="header-actions-wrap">
+                <button class="btn-reset-nav" id="global-reset-btn" onclick="abortMatchAndResetSystem()">↺ Reset to Menu</button>
+                <div class="live-badge">● LIVE INTERFACE</div>
+            </div>
+        </div>
+
+        <div id="screen-setup" class="screen active">
+            
+            <div class="cloud-sync-box">
+                <label>🔗 Connect Google Apps Script Web App Endpoint</label>
+                <div class="sync-input-row">
+                    <input type="text" id="macro-endpoint-url" placeholder="Paste your deployed Google Web App URL here..." value="">
+                    <button class="btn-sync" onclick="fetchGoogleWorksheetsListing()">🔄 Sync Worksheets</button>
+                </div>
+                <span id="sync-status-indicator" style="font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--secondary-neon);">Unlinked</span>
+            </div>
+
+            <div class="config-card">
+                <label>1. Select Sheet Worksheet (Active Set)</label>
+                <select id="bank-selector-dropdown" onchange="pullActiveSheetQuestionsData()"></select>
+
+                <label style="margin-top: 15px;">2. Match Assignment Mode</label>
+                <select id="match-mode-select" onchange="adaptRosterInputs()">
+                    <option value="solo_striker">1-PLAYER: STAR STRIKER (You Shoot, CPU Keeps Goal)</option>
+                    <option value="solo_goalie">1-PLAYER: ELITE GOALKEEPER (CPU Shoots, You Dive)</option>
+                    <option value="versus">2-PLAYER: HEAD-TO-HEAD BRACKET CHALLENGE</option>
+                </select>
+
+                <div id="roster-names-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label id="lbl-p1">Striker Assignment Name</label>
+                        <input type="text" id="name-p1-input" value="STRIKER P1" maxlength="12">
+                    </div>
+                    <div>
+                        <label id="lbl-p2">Defending Goalkeeper Name</label>
+                        <input type="text" id="name-p2-input" value="KEEPER CPU" disabled maxlength="12">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-action" id="start-match-btn" onclick="launchTelevisedMatchArena()">Launch Stadium Match</button>
+        </div>
+
+        <div id="screen-match" class="screen">
+            <div class="tv-scoreboard">
+                <div class="scoreboard-team">
+                    <div class="team-title" id="hud-p1-name">TEAM 1</div>
+                    <div class="shot-trackers" id="hud-p1-trackers"></div>
+                </div>
+                <div class="live-score-center" id="hud-score-digits">0 - 0</div>
+                <div class="scoreboard-team" style="align-items: flex-end;">
+                    <div class="team-title" id="hud-p2-name">TEAM 2</div>
+                    <div class="shot-trackers" id="hud-p2-trackers" style="justify-content: flex-end;"></div>
+                </div>
+            </div>
+
+            <div class="ticker-wrapper">
+                <div class="ticker-content" id="live-news-ticker">ESTABLISHING FEED...</div>
+            </div>
+
+            <div class="tv-quiz-overlay" id="quiz-overlay-panel" style="display: none;">
+                <div class="quiz-meta-row">
+                    <span id="quiz-role-header" style="font-weight: bold; color: var(--secondary-neon);">METRICS FEED ANALYSIS</span>
+                    <span id="quiz-mechanic-warning" style="color: var(--alert-amber); font-weight: bold;">CRITICAL TIME ALLOCATION</span>
+                </div>
+                <div class="quiz-question-box" id="quiz-question-text">Loading question matrix...</div>
+                <div class="tv-options-container" id="tv-options-grid"></div>
+                <div id="broadcast-progress-container"><div id="broadcast-progress-bar"></div></div>
+            </div>
+
+            <div id="stadium-canvas-wrap">
+                <canvas id="stadiumCanvas" width="840" height="440"></canvas>
+            </div>
+        </div>
+
+        <div id="screen-summary" class="screen" style="text-align: center; padding: 30px 10px;">
+            <h2 id="trophy-headline" style="color: var(--primary-neon); font-size: 28px; font-weight: 900; margin-bottom: 10px;">MATCH CONCLUDED</h2>
+            <div class="config-card" id="post-match-stats" style="font-family: 'Share Tech Mono', monospace; font-size: 15px; line-height: 2; text-align: center;"></div>
+            <button class="btn-action" onclick="abortMatchAndResetSystem()">Return to Main Menu</button>
+        </div>
+
+        <div class="broadcast-log" id="system-status-log">
+            SYSTEM STATUS: STANDBY. SYNC WITH APPS SCRIPT ENDPOINT TO POPULATE CLOUD WORKSHEETS.
+        </div>
+    </div>
+
+    <script>
+        // --- SYNTHESIZED SOUND CARD ---
+        const WebAudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioContext = null;
+        let ambientCrowdNode = null;
+
+        function initializeAudioSystem() {
+            if (!audioContext) {
+                audioContext = new WebAudioContext();
+                buildAmbientCrowdLoop();
+            }
+            if (audioContext.state === 'suspended') audioContext.resume();
+        }
+
+        function buildAmbientCrowdLoop() {
+            let bufferSize = audioContext.sampleRate * 2;
+            let noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            let output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
+            let noiseSource = audioContext.createBufferSource();
+            noiseSource.buffer = noiseBuffer;
+            noiseSource.loop = true;
+
+            let crowdFilter = audioContext.createBiquadFilter();
+            crowdFilter.type = 'lowpass'; crowdFilter.frequency.setValueAtTime(360, audioContext.currentTime);
+
+            let crowdGain = audioContext.createGain();
+            crowdGain.gain.setValueAtTime(0.04, audioContext.currentTime);
+
+            noiseSource.connect(crowdFilter); crowdFilter.connect(crowdGain);
+            crowdGain.connect(audioContext.destination);
+            noiseSource.start(); ambientCrowdNode = crowdGain; 
+        }
+
+        function triggerBroadcastAudio(type) {
+            try {
+                initializeAudioSystem();
+                let now = audioContext.currentTime;
+
+                if (type === 'whistle') {
+                    let osc1 = audioContext.createOscillator(); let osc2 = audioContext.createOscillator();
+                    let gainNode = audioContext.createGain();
+                    osc1.type = 'sine'; osc2.type = 'sine';
+                    osc1.frequency.setValueAtTime(1950, now); osc2.frequency.setValueAtTime(1965, now);
+                    
+                    let lfo = audioContext.createOscillator(); let lfoGain = audioContext.createGain();
+                    lfo.frequency.setValueAtTime(25, now); lfoGain.gain.setValueAtTime(35, now);
+                    
+                    lfo.connect(lfoGain); lfoGain.connect(osc1.frequency); lfoGain.connect(osc2.frequency);
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(0.2, now + 0.02);
+                    gainNode.gain.setValueAtTime(0.2, now + 0.35);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                    
+                    osc1.connect(gainNode); osc2.connect(gainNode); gainNode.connect(audioContext.destination);
+                    lfo.start(now); osc1.start(now); osc2.start(now);
+                    lfo.stop(now + 0.45); osc1.stop(now + 0.45); osc2.stop(now + 0.45);
+                } 
+                else if (type === 'goal') {
+                    if(ambientCrowdNode) {
+                        ambientCrowdNode.gain.cancelScheduledValues(now);
+                        ambientCrowdNode.gain.setValueAtTime(0.04, now);
+                        ambientCrowdNode.gain.linearRampToValueAtTime(0.38, now + 0.1);
+                        ambientCrowdNode.gain.linearRampToValueAtTime(0.2, now + 1.4);
+                        ambientCrowdNode.gain.exponentialRampToValueAtTime(0.04, now + 3.2);
+                    }
+                } 
+                else if (type === 'click') {
+                    let osc = audioContext.createOscillator(); let g = audioContext.createGain();
+                    osc.frequency.setValueAtTime(900, now); g.gain.setValueAtTime(0.04, now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                    osc.connect(g); g.connect(audioContext.destination);
+                    osc.start(now); osc.stop(now + 0.04);
+                }
+            } catch(e) {}
+        }
+
+        // --- GLOBAL CLOUD CENTRAL DATA OBJECTS ---
+        let activeQuestionBank = [
+            {q: "Fall back physics check: Density equals?", ans: ["Mass x Volume", "Volume/Mass", "Mass/Volume", "Force/Area"], correct: 2}
+        ];
+
+        // --- FETCHING ACTIONS USING APPS SCRIPT MIDDLWARE ---
+        function fetchGoogleWorksheetsListing() {
+            let endpoint = document.getElementById('macro-endpoint-url').value.trim();
+            if (!endpoint) {
+                alert("Please enter a valid Google Apps Script Deployment Web App URL.");
+                return;
+            }
+            localStorage.setItem('retro_cup_sheets_endpoint', endpoint);
+            document.getElementById('sync-status-indicator').innerText = "Querying worksheets structure...";
+            triggerBroadcastAudio('click');
+
+            fetch(`${endpoint}?action=getSheets`)
+                .then(res => res.json())
+                .then(json => {
+                    if (json.sheets && json.sheets.length > 0) {
+                        const dropdown = document.getElementById('bank-selector-dropdown');
+                        dropdown.innerHTML = '';
+                        
+                        json.sheets.forEach(sheetName => {
+                            let opt = document.createElement('option');
+                            opt.value = sheetName;
+                            opt.innerText = `📄 Tab: ${sheetName}`;
+                            dropdown.appendChild(opt);
+                        });
+
+                        document.getElementById('sync-status-indicator').innerText = `✅ Connected! Found ${json.sheets.length} worksheets.`;
+                        document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Extracted sheet schema successfully.`;
+                        pullActiveSheetQuestionsData();
+                    } else {
+                        document.getElementById('sync-status-indicator').innerText = "⚠️ No tabs returned.";
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('sync-status-indicator').innerText = "❌ Connection failed. Check CORS / Deployment Settings.";
+                });
+        }
+
+        function pullActiveSheetQuestionsData() {
+            let endpoint = document.getElementById('macro-endpoint-url').value.trim();
+            let selectedTab = document.getElementById('bank-selector-dropdown').value;
+            if (!endpoint || !selectedTab) return;
+
+            document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Synchronizing data rows from "${selectedTab}"...`;
+
+            fetch(`${endpoint}?action=getSheetData&sheetName=${encodeURIComponent(selectedTab)}`)
+                .then(res => res.json())
+                .then(json => {
+                    if (json.data && json.data.length > 1) {
+                        let extracted = [];
+                        // Process spreadsheet rows sequentially, bypassing header lines
+                        for (let i = 0; i < json.data.length; i++) {
+                            let row = json.data[i];
+                            let qText = row[1] ? String(row[1]).trim() : "";
+                            
+                            if (!qText || qText.toLowerCase().includes('question text') || qText.toLowerCase().includes('question #')) {
+                                continue;
+                            }
+
+                            let ansArray = [];
+                            if (row[2]) ansArray.push(String(row[2]).trim());
+                            if (row[3]) ansArray.push(String(row[3]).trim());
+                            if (row[4]) ansArray.push(String(row[4]).trim());
+                            if (row[5]) ansArray.push(String(row[5]).trim());
+
+                            let rawCorrect = parseInt(row[6]);
+                            let corrIdx = isNaN(rawCorrect) ? 0 : rawCorrect - 1;
+                            if (corrIdx < 0 || corrIdx >= ansArray.length) corrIdx = 0;
+
+                            if (ansArray.length > 0) {
+                                extracted.push({ q: qText, ans: ansArray, correct: corrIdx });
+                            }
+                        }
+
+                        if (extracted.length > 0) {
+                            activeQuestionBank = extracted;
+                            document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Loaded ${extracted.length} questions from tab "${selectedTab}". ready for game run.`;
+                        } else {
+                            document.getElementById('system-status-log').innerText = `⚠️ Warning: Tab "${selectedTab}" contains zero properly structured questions.`;
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('system-status-log').innerText = `❌ Error pulling data from tab "${selectedTab}"`;
+                });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            let savedUrl = localStorage.getItem('retro_cup_sheets_endpoint');
+            if (savedUrl) {
+                document.getElementById('macro-endpoint-url').value = savedUrl;
+                fetchGoogleWorksheetsListing();
+            }
+            adaptRosterInputs();
+        });
+
+        // --- GAME MECHANICS AND STATE TRUCKERS ---
+        let activeMatchMode = "solo_striker"; 
+        let profileNames = { p1: "STRIKER P1", p2: "KEEPER CPU" };
+        let matchScores = {
+            p1: { tracking: [], goals: 0, attempts: 0 },
+            p2: { tracking: [], goals: 0, attempts: 0 }
+        };
+        let turnIndex = 0; let globalRound = 1; let isSuddenDeathPhase = false;
+
+        let activeQuestion = null;
+        let shooterAnsweredCorrect = false; let goalieAnsweredCorrect = false;
+        let shooterSpeedRatio = 0; let goalkeeperVisibleOptionPool = []; 
+
+        const canvas = document.getElementById('stadiumCanvas');
+        const ctx = canvas.getContext('2d');
+        const netConfig = { topY: 60, bottomY: 150, leftX: 180, rightX: 660, width: 480, height: 90 };
+        const rowsCount = 3, colsCount = 4;
+        const boxW = netConfig.width / colsCount; const boxH = netConfig.height / rowsCount;
+
+        let targetGridSectors = [];
+        let broadcastLoopState = 'none'; 
+        let currentlyHoveredSector = null; let shooterSelectedSector = null; let goalieSelectedSector = null;
+
+        let screenFlashFrames = 0; let cameraShakeIntensity = 0; let dustConfettiPool = [];
+        let broadcastTimerInstance = null; let countdownClock = 20;
+
+        let assetsStriker = { x: 420, y: 390, frame: 0 };
+        let assetsGoalie = { x: 420, y: 140, pose: 'ready' };
+        let assetsBall = { x: 420, y: 330, tx: 420, ty: 330, shadowY: 330, altY: 0, radius: 10 };
+
+        const alphabetPool = ['A','B','C','D','E','F','G','H','J','K','L','M'];
+
+        function adaptRosterInputs() {
+            let mode = document.getElementById('match-mode-select').value;
+            let inp1 = document.getElementById('name-p1-input'); let inp2 = document.getElementById('name-p2-input');
+            let lbl1 = document.getElementById('lbl-p1'); let lbl2 = document.getElementById('lbl-p2');
+
+            if (mode === 'solo_striker') {
+                lbl1.innerText = "Striker Name (You)"; lbl2.innerText = "Goalkeeper Name (CPU)";
+                inp1.value = "STRIKER P1"; inp1.disabled = false; inp2.value = "KEEPER CPU"; inp2.disabled = true;
+            } else if (mode === 'solo_goalie') {
+                lbl1.innerText = "Striker Name (CPU)"; lbl2.innerText = "Goalkeeper Name (You)";
+                inp1.value = "STRIKER CPU"; inp1.disabled = true; inp2.value = "GOALKEEPER P1"; inp2.disabled = false;
+            } else {
+                lbl1.innerText = "Player 1 (Striker)"; lbl2.innerText = "Player 2 (Goalkeeper)";
+                inp1.value = "STRIKER P1"; inp1.disabled = false; inp2.value = "GOALIE P2"; inp2.disabled = false;
+            }
+        }
+
+        function setTickerTapeMessage(msg) {
+            document.getElementById('live-news-ticker').innerText = `[CLOUD MATRIX FEED] ${msg.toUpperCase()}`;
+        }
+
+        function launchTelevisedMatchArena() {
+            if (!activeQuestionBank || activeQuestionBank.length === 0) {
+                alert("The targeted worksheet dataset contains no executable items.");
+                return;
+            }
+            triggerBroadcastAudio('click');
+            activeMatchMode = document.getElementById('match-mode-select').value;
+            profileNames.p1 = document.getElementById('name-p1-input').value.trim().toUpperCase() || "TEAM A";
+            profileNames.p2 = document.getElementById('name-p2-input').value.trim().toUpperCase() || "TEAM B";
+
+            matchScores = { p1: { tracking: [], goals: 0, attempts: 0 }, p2: { tracking: [], goals: 0, attempts: 0 } };
+            turnIndex = 0; globalRound = 1; isSuddenDeathPhase = false;
+
+            document.getElementById('hud-p1-name').innerText = profileNames.p1;
+            document.getElementById('hud-p2-name').innerText = profileNames.p2;
+
+            refreshScoreBannerLayout();
+            document.getElementById('screen-setup').classList.remove('active');
+            document.getElementById('screen-match').classList.add('active');
+            document.getElementById('global-reset-btn').style.display = 'block';
+
+            canvas.addEventListener('mousemove', computeHoverGridCoords);
+            canvas.addEventListener('click', registerGridZoneClick);
+
+            requestAnimationFrame(renderCorePipelineFrame);
+            initiateNextTurnSequence();
+        }
+
+        function abortMatchAndResetSystem() {
+            triggerBroadcastAudio('click');
+            clearInterval(broadcastTimerInstance);
+            document.getElementById('screen-match').classList.remove('active');
+            document.getElementById('screen-summary').classList.remove('active');
+            document.getElementById('screen-setup').classList.add('active');
+            document.getElementById('global-reset-btn').style.display = 'none';
+            broadcastLoopState = 'none';
+        }
+
+        function establishGridSectors() {
+            targetGridSectors = [];
+            for (let r = 0; r < rowsCount; r++) {
+                for (let c = 0; c < colsCount; c++) {
+                    let idx = r * colsCount + c;
+                    targetGridSectors.push({
+                        id: idx, row: r, col: c, letter: alphabetPool[idx],
+                        x: netConfig.leftX + (c * boxW), y: netConfig.topY + (r * boxH),
+                        w: boxW, h: boxH, isLockedRed: false
+                    });
+                }
+            }
+            goalkeeperVisibleOptionPool = [];
+        }
+
+        function initiateNextTurnSequence() {
+            establishGridSectors();
+            resetAssetsCoordLayout();
+            broadcastLoopState = 'whistle_wait';
+            countdownClock = 30; 
+            triggerBroadcastAudio('whistle');
+            setTickerTapeMessage(`ROUND ${globalRound}: SECURING LIVE FEED BROADCAST... STANDBY`);
+        }
+
+        function resetAssetsCoordLayout() {
+            assetsStriker = { x: 420, y: 400, frame: 0 };
+            assetsGoalie = { x: 420, y: 145, pose: 'ready' };
+            assetsBall = { x: 420, y: 340, tx: 420, ty: 340, shadowY: 340, altY: 0, radius: 10 };
+            currentlyHoveredSector = null; shooterSelectedSector = null; goalieSelectedSector = null;
+        }
+
+        function processNextQuizTrigger() {
+            let shooterIsCpu = (activeMatchMode === 'solo_goalie' && turnIndex === 0) || (activeMatchMode === 'solo_striker' && turnIndex === 1);
+            if (shooterIsCpu) executeCpuAutomatedShooterTurn();
+            else presentStrikerQuizOverlay();
+        }
+
+        function presentStrikerQuizOverlay() {
+            broadcastLoopState = 'quiz_striker';
+            shooterAnsweredCorrect = false;
+
+            let activeShooterName = (turnIndex === 0) ? profileNames.p1 : profileNames.p2;
+            document.getElementById('quiz-role-header').innerText = `🎯 STRIKER CORE: ${activeShooterName}`;
+            document.getElementById('quiz-role-header').style.color = "var(--accent-magenta)";
+            document.getElementById('quiz-mechanic-warning').innerText = "⏱️ HIGHER SPEEDS PRESERVE AIM SECTORS!";
+
+            document.getElementById('quiz-overlay-panel').style.display = 'block';
+            populateRandomQuizQuestion();
+
+            countdownClock = 20; adjustQuizTimerGraphic();
+
+            clearInterval(broadcastTimerInstance);
+            broadcastTimerInstance = setInterval(() => {
+                countdownClock -= 0.2; adjustQuizTimerGraphic();
+
+                if (Math.floor(countdownClock * 10) % 40 === 0) {
+                    let available = targetGridSectors.filter(s => !s.isLockedRed);
+                    if (available.length > 2) {
+                        let lockedOut = available[Math.floor(Math.random() * available.length)];
+                        lockedOut.isLockedRed = true;
+                    }
+                }
+
+                if (countdownClock <= 0) { clearInterval(broadcastTimerInstance); registerUserSelection(-1); }
+            }, 200);
+        }
+
+        function executeCpuAutomatedShooterTurn() {
+            let available = targetGridSectors.filter(s => !s.isLockedRed);
+            shooterSelectedSector = available[Math.floor(Math.random() * available.length)];
+            shooterAnsweredCorrect = Math.random() < 0.72; 
+            shooterSpeedRatio = Math.random() * 8 + 2;
+            triggerGoalieQuizOrCpuSequence();
+        }
+
+        function presentGoalieQuizOverlay() {
+            broadcastLoopState = 'quiz_goalie';
+            goalieAnsweredCorrect = false;
+
+            let activeKeeperName = (turnIndex === 0) ? profileNames.p2 : profileNames.p1;
+            document.getElementById('quiz-role-header').innerText = `🧤 KEEPER MATRIX: ${activeKeeperName}`;
+            document.getElementById('quiz-role-header').style.color = "var(--secondary-neon)";
+            document.getElementById('quiz-mechanic-warning').innerText = "⏱️ SPEED SHRINK DEFENSIVE ARC ARRAYS!";
+
+            document.getElementById('quiz-overlay-panel').style.display = 'block';
+            populateRandomQuizQuestion();
+
+            countdownClock = 20; adjustQuizTimerGraphic();
+
+            clearInterval(broadcastTimerInstance);
+            broadcastTimerInstance = setInterval(() => {
+                countdownClock -= 0.2; adjustQuizTimerGraphic();
+                if (countdownClock <= 0) { clearInterval(broadcastTimerInstance); registerUserSelection(-1); }
+            }, 200);
+        }
+
+        function executeCpuAutomatedGoalieTurn() {
+            let targetPoolCount = 4;
+            if (shooterSpeedRatio < 5) targetPoolCount = 2; 
+            else if (shooterSpeedRatio < 12) targetPoolCount = 5;
+            else targetPoolCount = 9;
+
+            let possibleBoxes = [...targetGridSectors]; let choiceCluster = [];
+            let realShotItem = targetGridSectors.find(s => s.id === shooterSelectedSector.id);
+            choiceCluster.push(realShotItem);
+            possibleBoxes = possibleBoxes.filter(s => s.id !== shooterSelectedSector.id);
+
+            for (let i = 0; i < (targetPoolCount - 1); i++) {
+                if (possibleBoxes.length > 0) {
+                    let rIdx = Math.floor(Math.random() * possibleBoxes.length);
+                    choiceCluster.push(possibleBoxes.splice(rIdx, 1)[0]);
+                }
+            }
+            goalieSelectedSector = choiceCluster[Math.floor(Math.random() * choiceCluster.length)];
+            goalieAnsweredCorrect = true;
+            initiateMechanicalBallAnimation();
+        }
+
+        function populateRandomQuizQuestion() {
+            activeQuestion = activeQuestionBank[Math.floor(Math.random() * activeQuestionBank.length)];
+            document.getElementById('quiz-question-text').innerHTML = activeQuestion.q;
+            
+            const optionsGrid = document.getElementById('tv-options-grid');
+            optionsGrid.innerHTML = '';
+            
+            activeQuestion.ans.forEach((ansText, index) => {
+                let btn = document.createElement('button');
+                btn.className = 'tv-opt-btn'; btn.id = `opt${index}`;
+                btn.innerHTML = ansText;
+                btn.onclick = () => registerUserSelection(index);
+                optionsGrid.appendChild(btn);
+            });
+
+            if (window.MathJax && window.MathJax.typesetPromise) { MathJax.typesetPromise(); }
+        }
+
+        function registerUserSelection(idx) {
+            triggerBroadcastAudio('click');
+            clearInterval(broadcastTimerInstance);
+            document.getElementById('quiz-overlay-panel').style.display = 'none';
+
+            let validity = (idx === activeQuestion.correct);
+
+            if (broadcastLoopState === 'quiz_striker') {
+                shooterAnsweredCorrect = validity; shooterSpeedRatio = 20 - countdownClock; 
+                broadcastLoopState = 'aim_striker';
+                setTickerTapeMessage("STRIKER STAGE READY: SELECT RADIAL TARGET GRID COORD TO FIRE...");
+            } else if (broadcastLoopState === 'quiz_goalie') {
+                goalieAnsweredCorrect = validity; let elapsed = 20 - countdownClock;
+                let targetPoolSize = 12; 
+                if (validity) {
+                    if (elapsed <= 4) targetPoolSize = 2;       
+                    else if (elapsed <= 10) targetPoolSize = 4; 
+                    else targetPoolSize = 7;                    
+                }
+
+                let poolPool = [...targetGridSectors]; goalkeeperVisibleOptionPool = [];
+                let actualCpuTarget = targetGridSectors.find(s => s.id === shooterSelectedSector.id);
+                goalkeeperVisibleOptionPool.push(actualCpuTarget);
+                poolPool = poolPool.filter(s => s.id !== shooterSelectedSector.id);
+
+                for (let i = 0; i < (targetPoolSize - 1); i++) {
+                    if (poolPool.length > 0) {
+                        let rIdx = Math.floor(Math.random() * poolPool.length);
+                        goalkeeperVisibleOptionPool.push(poolPool.splice(rIdx, 1)[0]);
+                    }
+                }
+                broadcastLoopState = 'aim_goalie';
+                setTickerTapeMessage(`GLOVE PARADIGM CONNECTED: SELECT BLOCK COORD...`);
+            }
+        }
+
+        function adjustQuizTimerGraphic() {
+            let percent = Math.max(0, (countdownClock / 20) * 100);
+            const element = document.getElementById('broadcast-progress-bar');
+            element.style.width = `${percent}%`;
+            if (percent < 35) element.style.backgroundColor = "var(--accent-magenta)";
+            else if (percent < 65) element.style.backgroundColor = "var(--alert-amber)";
+            else element.style.backgroundColor = "var(--primary-neon)";
+        }
+
+        function triggerGoalieQuizOrCpuSequence() {
+            let goalieIsCpu = (activeMatchMode === 'solo_striker' && turnIndex === 0) || (activeMatchMode === 'solo_goalie' && turnIndex === 1);
+            if (goalieIsCpu) executeCpuAutomatedGoalieTurn();
+            else presentGoalieQuizOverlay();
+        }
+
+        function getSectorFromCoordinates(mx, my) {
+            for (let s of targetGridSectors) {
+                if (mx >= s.x && mx <= s.x + s.w && my >= s.y && my <= s.y + s.h) return s;
+            }
+            return null;
+        }
+
+        function computeHoverGridCoords(e) {
+            if (broadcastLoopState !== 'aim_striker' && broadcastLoopState !== 'aim_goalie') return;
+            const bounds = canvas.getBoundingClientRect();
+            const mx = e.clientX - bounds.left; const my = e.clientY - bounds.top;
+            
+            let matched = getSectorFromCoordinates(mx, my);
+            if (matched) {
+                if (broadcastLoopState === 'aim_striker' && matched.isLockedRed) { currentlyHoveredSector = null; return; }
+                if (broadcastLoopState === 'aim_goalie' && goalkeeperVisibleOptionPool.length > 0 && !goalkeeperVisibleOptionPool.includes(matched)) { currentlyHoveredSector = null; return; }
+                currentlyHoveredSector = matched;
+            } else { currentlyHoveredSector = null; }
+        }
+
+        function registerGridZoneClick(e) {
+            if (broadcastLoopState !== 'aim_striker' && broadcastLoopState !== 'aim_goalie') return;
+            const bounds = canvas.getBoundingClientRect();
+            const mx = e.clientX - bounds.left; const my = e.clientY - bounds.top;
+
+            let targetBox = getSectorFromCoordinates(mx, my);
+            if (targetBox) {
+                if (broadcastLoopState === 'aim_striker' && targetBox.isLockedRed) return;
+                if (broadcastLoopState === 'aim_goalie' && goalkeeperVisibleOptionPool.length > 0 && !goalkeeperVisibleOptionPool.includes(targetBox)) return;
+                executeTargetSelectionBinding(targetBox);
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (broadcastLoopState !== 'aim_striker' && broadcastLoopState !== 'aim_goalie') return;
+            let character = e.key.toUpperCase();
+            let matchedBox = targetGridSectors.find(s => s.letter === character);
+            if (matchedBox) {
+                if (broadcastLoopState === 'aim_striker' && matchedBox.isLockedRed) return;
+                if (broadcastLoopState === 'aim_goalie' && goalkeeperVisibleOptionPool.length > 0 && !goalkeeperVisibleOptionPool.includes(matchedBox)) return;
+                executeTargetSelectionBinding(matchedBox);
+            }
+        });
+
+        function executeTargetSelectionBinding(box) {
+            triggerBroadcastAudio('click');
+            if (broadcastLoopState === 'aim_striker') {
+                shooterSelectedSector = box; currentlyHoveredSector = null;
+                triggerGoalieQuizOrCpuSequence();
+            } else if (broadcastLoopState === 'aim_goalie') {
+                goalieSelectedSector = box; currentlyHoveredSector = null;
+                initiateMechanicalBallAnimation();
+            }
+        }
+
+        let shotOutcomeMeta = { status: 'GOAL', description: 'GOAL!', analysis: '' };
+
+        function initiateMechanicalBallAnimation() {
+            broadcastLoopState = 'kick_runup';
+            assetsBall.tx = shooterSelectedSector.x + (boxW / 2); assetsBall.ty = shooterSelectedSector.y + (boxH / 2);
+
+            let sectorMatch = (shooterSelectedSector.id === goalieSelectedSector.id);
+            assetsGoalie.pose = (goalieSelectedSector.col < 2) ? 'dive_left' : 'dive_right';
+
+            if (sectorMatch) {
+                shotOutcomeMeta = { status: 'SAVE', description: 'SPECTACULAR GOALKEEPER BLOCK!', analysis: 'Predictive computation framework fully aligned!' };
+            } else {
+                if (shooterAnsweredCorrect) {
+                    shotOutcomeMeta = { status: 'GOAL', description: 'GOAL! INTENSE ACCELERATED KICK CONVERTS!', analysis: 'Velocity profile denies standard response time.' };
+                } else {
+                    if (Math.random() < 0.5) {
+                        assetsBall.tx = (Math.random() < 0.5) ? netConfig.leftX - 45 : netConfig.rightX + 45;
+                        shotOutcomeMeta = { status: 'WIDE', description: 'SHOT OUT OF THE NETTING FRAME!', analysis: 'Kinetic vector calculation failure.' };
+                    } else {
+                        shotOutcomeMeta = { status: 'GOAL', description: 'SNEAK GOAL CRASHES HOME!', analysis: 'Delayed dive permits path breakthrough.' };
+                    }
+                }
+            }
+        }
+
+        function calculateTurnRegistryState() {
+            let scoredBool = (shotOutcomeMeta.status === 'GOAL');
+            let operatingKey = (turnIndex === 0) ? 'p1' : 'p2';
+
+            matchScores[operatingKey].tracking.push(scoredBool);
+            if (scoredBool) matchScores[operatingKey].goals++;
+            matchScores[operatingKey].attempts++;
+
+            let s1 = matchScores.p1; let s2 = matchScores.p2;
+
+            if (!isSuddenDeathPhase) {
+                if (s1.goals > s2.goals + Math.max(0, 5 - s2.attempts)) { triggerMatchConclusion('p1'); return; }
+                if (s2.goals > s1.goals + Math.max(0, 5 - s1.attempts)) { triggerMatchConclusion('p2'); return; }
+
+                if (s1.attempts >= 5 && s2.attempts >= 5) {
+                    if (s1.goals === s2.goals) {
+                        isSuddenDeathPhase = true; setTickerTapeMessage("⚡ SUDDEN DEATH IN EFFECT...");
+                    } else { triggerMatchConclusion(s1.goals > s2.goals ? 'p1' : 'p2'); return; }
+                }
+            } else {
+                if (s1.attempts === s2.attempts && s1.goals !== s2.goals) { triggerMatchConclusion(s1.goals > s2.goals ? 'p1' : 'p2'); return; }
+            }
+
+            turnIndex = (turnIndex + 1) % 2;
+            if (turnIndex === 0) globalRound++;
+
+            refreshScoreBannerLayout(); initiateNextTurnSequence();
+        }
+
+        function triggerMatchConclusion(winnerKey) {
+            broadcastLoopState = 'none'; document.getElementById('global-reset-btn').style.display = 'none';
+            document.getElementById('trophy-headline').innerText = `🏆 ${profileNames[winnerKey]} CLAIMS THE CUP! 🏆`;
+            document.getElementById('post-match-stats').innerHTML = 
+                `<h3>FINAL BROADCAST STATS MATCH SCORE</h3>` +
+                `<p style="color: var(--secondary-neon); font-size: 22px; font-weight: bold;">` +
+                `${profileNames.p1}: ${matchScores.p1.goals} GOALS  |  ${profileNames.p2}: ${matchScores.p2.goals} GOALS</p>`;
+            
+            setTimeout(() => {
+                document.getElementById('screen-match').classList.remove('active');
+                document.getElementById('screen-summary').classList.add('active');
+            }, 2500);
+        }
+
+        function refreshScoreBannerLayout() {
+            const b1 = document.getElementById('hud-p1-trackers'); const b2 = document.getElementById('hud-p2-trackers');
+            b1.innerHTML = ''; b2.innerHTML = '';
+            let displaySlots = Math.max(5, matchScores.p1.attempts, matchScores.p2.attempts);
+            for (let i = 0; i < displaySlots; i++) {
+                let slot1 = generateBroadcastDotNode(matchScores.p1.tracking[i]);
+                let slot2 = generateBroadcastDotNode(matchScores.p2.tracking[i]);
+                if (turnIndex === 0 && i === matchScores.p1.attempts && broadcastLoopState !== 'play_replay') slot1.classList.add('focused-slot');
+                if (turnIndex === 1 && i === matchScores.p2.attempts && broadcastLoopState !== 'play_replay') slot2.classList.add('focused-slot');
+                b1.appendChild(slot1); b2.appendChild(slot2);
+            }
+            document.getElementById('hud-score-digits').innerText = `${matchScores.p1.goals} - ${matchScores.p2.goals}`;
+        }
+
+        function generateBroadcastDotNode(val) {
+            let node = document.createElement('div'); node.className = 'tracker-slot';
+            if (val === true) node.classList.add('scored'); if (val === false) node.classList.add('missed');
+            return node;
+        }
+
+        // --- PIPELINE RENDERING GRAPHICS INTERRUPTS ---
+        function renderCorePipelineFrame() {
+            if (screenFlashFrames > 0) screenFlashFrames--;
+            if (cameraShakeIntensity > 0) cameraShakeIntensity -= 0.3;
+
+            if (broadcastLoopState === 'whistle_wait') { countdownClock--; if (countdownClock <= 0) processNextQuizTrigger(); }
+
+            if (broadcastLoopState === 'kick_runup') {
+                assetsStriker.frame += 0.3; let tx = 415; let ty = 355;
+                if (Math.hypot(tx - assetsStriker.x, ty - assetsStriker.y) > 5) {
+                    assetsStriker.x += (tx - assetsStriker.x) * 0.16; assetsStriker.y += (ty - assetsStriker.y) * 0.16;
+                } else {
+                    broadcastLoopState = 'ball_in_motion';
+                    if (shotOutcomeMeta.status === 'GOAL') {
+                        cameraShakeIntensity = 12; screenFlashFrames = 6; triggerBroadcastAudio('goal');
+                        deployConfettiBurst(assetsBall.tx, assetsBall.ty);
+                    } else { triggerBroadcastAudio('click'); }
+                }
+            }
+
+            if (broadcastLoopState === 'ball_in_motion') {
+                assetsBall.x += (assetsBall.tx - assetsBall.x) * 0.10; assetsBall.y += (assetsBall.ty - assetsBall.y) * 0.10;
+                assetsBall.shadowY += (netConfig.bottomY - assetsBall.shadowY) * 0.10;
+                if (assetsBall.radius > 5) assetsBall.radius -= 0.12;
+
+                let initialDist = Math.abs(340 - assetsBall.ty); let currentDist = Math.abs(assetsBall.y - assetsBall.ty);
+                assetsBall.altY = Math.sin((currentDist / initialDist) * Math.PI) * 60;
+
+                let gkTargetX = goalieSelectedSector.x + (boxW / 2);
+                let gkTargetY = netConfig.topY + (goalieSelectedSector.row * boxH) + 25;
+                assetsGoalie.x += (gkTargetX - assetsGoalie.x) * 0.12; assetsGoalie.y += (gkTargetY - assetsGoalie.y) * 0.12;
+
+                if (Math.hypot(assetsBall.tx - assetsBall.x, assetsBall.ty - assetsBall.y) < 3) {
+                    broadcastLoopState = 'play_replay'; setTickerTapeMessage(`OUTCOME REPLAY: ${shotOutcomeMeta.description}`);
+                    setTimeout(() => { calculateTurnRegistryState(); }, 3500);
+                }
+            }
+
+            for (let i = dustConfettiPool.length - 1; i >= 0; i--) {
+                let p = dustConfettiPool[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life--;
+                if (p.life <= 0) dustConfettiPool.splice(i, 1);
+            }
+
+            ctx.save();
+            if (cameraShakeIntensity > 0) ctx.translate((Math.random() - 0.5) * cameraShakeIntensity, (Math.random() - 0.5) * cameraShakeIntensity);
+
+            ctx.fillStyle = '#143d1f'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#1a4c27';
+            for (let x = 0; x < canvas.width; x += 60) { if ((x / 60) % 2 === 0) ctx.fillRect(x, 0, 60, canvas.height); }
+
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, canvas.width, 50);
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(80, 150); ctx.lineTo(760, 150); ctx.lineTo(840, 440); ctx.lineTo(0, 440); ctx.closePath(); ctx.stroke();
+            
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(420, 340, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(10, 15, 30, 0.75)'; ctx.fillRect(netConfig.leftX, netConfig.topY, netConfig.width, netConfig.height);
+
+            targetGridSectors.forEach(sector => {
+                let renderActiveLetters = (broadcastLoopState === 'aim_striker' || broadcastLoopState === 'aim_goalie');
+                
+                if (sector.isLockedRed) {
+                    ctx.fillStyle = 'rgba(225, 29, 72, 0.35)'; ctx.fillRect(sector.x, sector.y, sector.w, sector.h);
+                    ctx.strokeStyle = '#ff005b'; ctx.lineWidth = 2; ctx.strokeRect(sector.x, sector.y, sector.w, sector.h);
+                } 
+                else if (currentlyHoveredSector === sector && renderActiveLetters) {
+                    ctx.fillStyle = 'var(--secondary-neon)'; ctx.fillRect(sector.x, sector.y, sector.w, sector.h);
+                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(sector.x, sector.y, sector.w, sector.h);
+                } 
+                else if (broadcastLoopState === 'aim_goalie' && goalkeeperVisibleOptionPool.length > 0 && goalkeeperVisibleOptionPool.includes(sector)) {
+                    ctx.fillStyle = 'rgba(255, 170, 0, 0.15)'; ctx.fillRect(sector.x, sector.y, sector.w, sector.h);
+                    ctx.strokeStyle = 'var(--alert-amber)'; ctx.lineWidth = 2; ctx.strokeRect(sector.x, sector.y, sector.w, sector.h);
+                }
+                else {
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.4)'; ctx.fillRect(sector.x, sector.y, sector.w, sector.h);
+                    ctx.strokeStyle = 'rgba(0, 229, 255, 0.3)'; ctx.lineWidth = 1; ctx.strokeRect(sector.x, sector.y, sector.w, sector.h);
+                }
+
+                if (renderActiveLetters) {
+                    ctx.font = '900 18px "Orbitron"'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+
+                    if (sector.isLockedRed) {
+                        ctx.fillStyle = '#ff005b'; ctx.fillText('X', sector.x + sector.w / 2, sector.y + sector.h / 2);
+                    } 
+                    else if (currentlyHoveredSector === sector) {
+                        ctx.fillStyle = '#040814'; ctx.fillText(sector.letter, sector.x + sector.w / 2, sector.y + sector.h / 2);
+                    } 
+                    else if (broadcastLoopState === 'aim_goalie' && goalkeeperVisibleOptionPool.length > 0 && goalkeeperVisibleOptionPool.includes(sector)) {
+                        ctx.fillStyle = 'var(--alert-amber)'; ctx.fillText(sector.letter, sector.x + sector.w / 2, sector.y + sector.h / 2);
+                    }
+                    else {
+                        ctx.fillStyle = '#ffffff'; ctx.fillText(sector.letter, sector.x + sector.w / 2, sector.y + sector.h / 2);
+                    }
+                }
+            });
+
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.moveTo(netConfig.leftX, netConfig.bottomY); ctx.lineTo(netConfig.leftX, netConfig.topY);
+            ctx.lineTo(netConfig.rightX, netConfig.topY); ctx.lineTo(netConfig.rightX, netConfig.bottomY); ctx.stroke();
+
+            ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath();
+            ctx.ellipse(assetsBall.x, assetsBall.shadowY, assetsBall.radius * 1.2, assetsBall.radius * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+
+            ctx.save(); ctx.translate(assetsGoalie.x, assetsGoalie.y);
+            if (assetsGoalie.pose === 'dive_left') ctx.rotate(Math.PI / 2.6);
+            if (assetsGoalie.pose === 'dive_right') ctx.rotate(-Math.PI / 2.6);
+            ctx.fillStyle = '#ffea00'; ctx.fillRect(-14, -20, 28, 24);
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(-14, 4, 28, 6);
+            ctx.fillStyle = '#ffdbac'; ctx.fillRect(-8, -30, 16, 10);
+            ctx.restore();
+
+            if (['whistle_wait','quiz_striker','aim_striker','kick_runup'].includes(broadcastLoopState)) {
+                ctx.save(); ctx.translate(assetsStriker.x, assetsStriker.y);
+                let legOffset = Math.floor(assetsStriker.frame % 2) === 0 ? 4 : -4;
+                ctx.fillStyle = 'var(--accent-magenta)'; ctx.fillRect(-12, -24, 24, 24);
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(-12, 0, 24, 6);
+                ctx.fillStyle = '#ffdbac'; ctx.fillRect(-8, 6, 5, 8 + legOffset); ctx.fillRect(3, 6, 5, 8 - legOffset);
+                ctx.fillRect(-6, -34, 12, 10);
+                ctx.restore();
+            }
+
+            ctx.fillStyle = '#ffffff'; ctx.beginPath();
+            ctx.arc(assetsBall.x, assetsBall.y - assetsBall.altY, assetsBall.radius, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#000000'; ctx.lineWidth = 2; ctx.stroke();
+
+            dustConfettiPool.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.sz, p.sz); });
+
+            if (broadcastLoopState === 'play_replay') {
+                ctx.fillStyle = 'rgba(10, 15, 29, 0.95)'; ctx.fillRect(50, 160, canvas.width - 100, 110);
+                ctx.strokeStyle = 'var(--secondary-neon)'; ctx.lineWidth = 2; ctx.strokeRect(50, 160, canvas.width - 100, 110);
+                ctx.font = '900 18px "Orbitron"'; ctx.textAlign = 'center';
+                ctx.fillStyle = (shotOutcomeMeta.status === 'GOAL') ? 'var(--primary-neon)' : 'var(--accent-magenta)';
+                ctx.fillText(shotOutcomeMeta.description, canvas.width / 2, 200);
+                ctx.font = '14px "Share Tech Mono"'; ctx.fillStyle = '#94a3b8';
+                ctx.fillText(`ANALYST MATRIX REPORT: "${shotOutcomeMeta.analysis}"`, canvas.width / 2, 240);
+            }
+
+            if (screenFlashFrames > 0) { ctx.fillStyle = `rgba(255,255,255,${screenFlashFrames / 6})`; ctx.fillRect(0,0,canvas.width,canvas.height); }
+
+            ctx.restore(); requestAnimationFrame(renderCorePipelineFrame);
+        }
+
+        function deployConfettiBurst(x, y) {
+            dustConfettiPool = []; const hues = ['#00ff66', '#00e5ff', '#ff005b', '#ffff00', '#ffffff'];
+            for (let i = 0; i < 70; i++) {
+                dustConfettiPool.push({
+                    x: x, y: y, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.8) * 9,
+                    color: hues[Math.floor(Math.random() * hues.length)], sz: Math.random() * 3 + 2, life: 40 + Math.random() * 40
+                });
+            }
+        }
+    </script>
+</body>
+</html>
