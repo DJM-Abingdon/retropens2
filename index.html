@@ -458,7 +458,7 @@
 
     <script>
         // =========================================================================
-        // 🛠️ EMBEDDED WEB APP LINK (UPDATED WITH YOUR LIVE MACRO LINK)
+        // 🛠️ EMBEDDED WEB APP LINK (UPDATED & VERIFIED)
         // =========================================================================
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYH1g1RvbLXl0Kmg7T8sEDDnyFUKANqQEzElp90hdsIz1RInoP4v_NYIZTamaCwBZgOw/exec";
         // =========================================================================
@@ -578,6 +578,7 @@
                 });
         }
 
+        // --- FIXED BATCH / SHEET DATA PARSING ENGINE ---
         function pullActiveSheetQuestionsData() {
             let selectedTab = document.getElementById('bank-selector-dropdown').value;
             if (!selectedTab) return;
@@ -589,23 +590,33 @@
                 .then(json => {
                     if (json.data && json.data.length > 1) {
                         let extracted = [];
+                        
                         for (let i = 0; i < json.data.length; i++) {
                             let row = json.data[i];
+                            
+                            if (!row || row.length < 7) continue;
+
                             let qText = row[1] ? String(row[1]).trim() : "";
                             
-                            if (!qText || qText.toLowerCase().includes('question text') || qText.toLowerCase().includes('question #') || qText.toLowerCase().includes('blooket import')) {
+                            // Explicit clean-filter out of Blooket headers and blank rows
+                            if (!qText || 
+                                qText.toLowerCase().includes('question text') || 
+                                qText.toLowerCase().includes('question #') || 
+                                qText.toLowerCase().includes('blooket import')) {
                                 continue;
                             }
 
+                            // Dynamic choice collection mapping Column C, D, E, F (Index 2,3,4,5)
                             let ansArray = [];
                             if (row[2] !== undefined && row[2] !== "") ansArray.push(String(row[2]).trim());
                             if (row[3] !== undefined && row[3] !== "") ansArray.push(String(row[3]).trim());
                             if (row[4] !== undefined && row[4] !== "") ansArray.push(String(row[4]).trim());
                             if (row[5] !== undefined && row[5] !== "") ansArray.push(String(row[5]).trim());
 
-                            let rawCorrect = parseInt(row[6]);
-                            if (isNaN(rawCorrect) && row[7] !== undefined) {
-                                rawCorrect = parseInt(row[7]);
+                            // Correct answer index column verification (Matches Column H / Index 7 with Column G fallback)
+                            let rawCorrect = parseInt(row[7]);
+                            if (isNaN(rawCorrect) && row[6] !== undefined) {
+                                rawCorrect = parseInt(row[6]);
                             }
                             let corrIdx = isNaN(rawCorrect) ? 0 : rawCorrect - 1;
                             if (corrIdx < 0 || corrIdx >= ansArray.length) corrIdx = 0;
@@ -617,15 +628,15 @@
 
                         if (extracted.length > 0) {
                             activeQuestionBank = extracted;
-                            document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Loaded ${extracted.length} questions from tab "${selectedTab}". Ready to play!`;
+                            document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Successfully synchronized ${extracted.length} questions from "${selectedTab}". Ready!`;
                         } else {
-                            document.getElementById('system-status-log').innerText = `⚠️ Warning: Tab "${selectedTab}" contains zero properly structured questions.`;
+                            document.getElementById('system-status-log').innerText = `⚠️ Tab "${selectedTab}" has zero compatible quiz structures. Check your spreadsheet formatting.`;
                         }
                     }
                 })
                 .catch(err => {
                     console.error(err);
-                    document.getElementById('system-status-log').innerText = `❌ Error pulling data rows from tab "${selectedTab}"`;
+                    document.getElementById('system-status-log').innerText = `❌ Grid Sync execution failed on tab "${selectedTab}"`;
                 });
         }
 
