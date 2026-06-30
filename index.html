@@ -458,7 +458,7 @@
 
     <script>
         // =========================================================================
-        // 🛠️ EMBED YOUR GOOGLE WEB APP LINK HERE
+        // 🛠️ EMBEDDED WEB APP LINK (UPDATED WITH YOUR LIVE MACRO LINK)
         // =========================================================================
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYH1g1RvbLXl0Kmg7T8sEDDnyFUKANqQEzElp90hdsIz1RInoP4v_NYIZTamaCwBZgOw/exec";
         // =========================================================================
@@ -544,18 +544,13 @@
             {q: "Fall back physics check: Density equals?", ans: ["Mass x Volume", "Volume/Mass", "Mass/Volume", "Force/Area"], correct: 2}
         ];
 
-        // --- FETCHING ACTIONS USING APPS SCRIPT MIDDLEWARE ---
+        // --- FETCHING ACTIONS USING APPS SCRIPT MIDDLEWARE (CORS-SAFE REDIRECT MODE) ---
         function fetchGoogleWorksheetsListing() {
-            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "PASTE_YOUR_WEB_APP_URL_HERE") {
-                document.getElementById('sync-status-indicator').innerText = "⚠️ Missing Web App Endpoint Link";
-                document.getElementById('system-status-log').innerText = "SYSTEM ERROR: Edit the HTML file to paste your Deployed Apps Script Web App URL.";
-                return;
-            }
-            
             document.getElementById('sync-status-indicator').innerText = "Querying worksheets structure...";
+            document.getElementById('system-status-log').innerText = "SYSTEM STATUS: Fetching workbook data schema...";
             triggerBroadcastAudio('click');
 
-            fetch(`${APPS_SCRIPT_URL}?action=getSheets`)
+            fetch(`${APPS_SCRIPT_URL}?action=getSheets`, { method: 'GET', mode: 'cors' })
                 .then(res => res.json())
                 .then(json => {
                     if (json.sheets && json.sheets.length > 0) {
@@ -578,18 +573,18 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    document.getElementById('sync-status-indicator').innerText = "❌ Connection failed. Check Script Deploy Settings.";
+                    document.getElementById('sync-status-indicator').innerText = "❌ Connection failed. Verify Web App Deployment rules.";
+                    document.getElementById('system-status-log').innerText = "SYSTEM ERROR: Redirect blocked or script permissions not set to 'Anyone'.";
                 });
         }
 
         function pullActiveSheetQuestionsData() {
-            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "PASTE_YOUR_WEB_APP_URL_HERE") return;
             let selectedTab = document.getElementById('bank-selector-dropdown').value;
             if (!selectedTab) return;
 
             document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Synchronizing data rows from "${selectedTab}"...`;
 
-            fetch(`${APPS_SCRIPT_URL}?action=getSheetData&sheetName=${encodeURIComponent(selectedTab)}`)
+            fetch(`${APPS_SCRIPT_URL}?action=getSheetData&sheetName=${encodeURIComponent(selectedTab)}`, { method: 'GET', mode: 'cors' })
                 .then(res => res.json())
                 .then(json => {
                     if (json.data && json.data.length > 1) {
@@ -598,28 +593,31 @@
                             let row = json.data[i];
                             let qText = row[1] ? String(row[1]).trim() : "";
                             
-                            if (!qText || qText.toLowerCase().includes('question text') || qText.toLowerCase().includes('question #')) {
+                            if (!qText || qText.toLowerCase().includes('question text') || qText.toLowerCase().includes('question #') || qText.toLowerCase().includes('blooket import')) {
                                 continue;
                             }
 
                             let ansArray = [];
-                            if (row[2]) ansArray.push(String(row[2]).trim());
-                            if (row[3]) ansArray.push(String(row[3]).trim());
-                            if (row[4]) ansArray.push(String(row[4]).trim());
-                            if (row[5]) ansArray.push(String(row[5]).trim());
+                            if (row[2] !== undefined && row[2] !== "") ansArray.push(String(row[2]).trim());
+                            if (row[3] !== undefined && row[3] !== "") ansArray.push(String(row[3]).trim());
+                            if (row[4] !== undefined && row[4] !== "") ansArray.push(String(row[4]).trim());
+                            if (row[5] !== undefined && row[5] !== "") ansArray.push(String(row[5]).trim());
 
                             let rawCorrect = parseInt(row[6]);
+                            if (isNaN(rawCorrect) && row[7] !== undefined) {
+                                rawCorrect = parseInt(row[7]);
+                            }
                             let corrIdx = isNaN(rawCorrect) ? 0 : rawCorrect - 1;
                             if (corrIdx < 0 || corrIdx >= ansArray.length) corrIdx = 0;
 
-                            if (ansArray.length > 0) {
+                            if (ansArray.length > 0 && qText.length > 0) {
                                 extracted.push({ q: qText, ans: ansArray, correct: corrIdx });
                             }
                         }
 
                         if (extracted.length > 0) {
                             activeQuestionBank = extracted;
-                            document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Loaded ${extracted.length} questions from tab "${selectedTab}". Ready to go!`;
+                            document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Loaded ${extracted.length} questions from tab "${selectedTab}". Ready to play!`;
                         } else {
                             document.getElementById('system-status-log').innerText = `⚠️ Warning: Tab "${selectedTab}" contains zero properly structured questions.`;
                         }
@@ -627,7 +625,7 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    document.getElementById('system-status-log').innerText = `❌ Error pulling data from tab "${selectedTab}"`;
+                    document.getElementById('system-status-log').innerText = `❌ Error pulling data rows from tab "${selectedTab}"`;
                 });
         }
 
@@ -914,6 +912,7 @@
             else presentGoalieQuizOverlay();
         }
 
+        // --- MATH RE-GRID SCAN MANIPULATORS ---
         function getSectorFromCoordinates(mx, my) {
             for (let s of targetGridSectors) {
                 if (mx >= s.x && mx <= s.x + s.w && my >= s.y && my <= s.y + s.h) return s;
@@ -1154,7 +1153,7 @@
 
             ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6;
             ctx.beginPath(); ctx.moveTo(netConfig.leftX, netConfig.bottomY); ctx.lineTo(netConfig.leftX, netConfig.topY);
-            ctx.lineTo(netConfig.rightX, netConfig.topY); ctx.lineTo(netConfig.rightX, netConfig.bottomY); stroke();
+            ctx.lineTo(netConfig.rightX, netConfig.topY); ctx.lineTo(netConfig.rightX, netConfig.bottomY); ctx.stroke();
 
             ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath();
             ctx.ellipse(assetsBall.x, assetsBall.shadowY, assetsBall.radius * 1.2, assetsBall.radius * 0.6, 0, 0, Math.PI * 2); ctx.fill();
