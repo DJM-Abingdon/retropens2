@@ -139,35 +139,33 @@
             border-color: var(--primary-neon);
         }
 
-        .cloud-sync-box {
+        .cloud-sync-status-bar {
             background: rgba(0, 229, 255, 0.05);
-            border: 1px dashed var(--secondary-neon);
-            padding: 15px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            padding: 12px 15px;
             border-radius: 6px;
             margin-bottom: 15px;
-        }
-
-        .sync-input-row {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Share Tech Mono', monospace;
         }
 
-        .btn-sync {
+        .btn-refresh-sheets {
             background: #131e36;
             border: 1px solid var(--secondary-neon);
             color: var(--secondary-neon);
-            padding: 0 20px;
+            padding: 4px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-family: 'Orbitron', sans-serif;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             text-transform: uppercase;
             transition: all 0.2s;
-            white-space: nowrap;
         }
 
-        .btn-sync:hover {
+        .btn-refresh-sheets:hover {
             background: var(--secondary-neon);
             color: #040814;
         }
@@ -382,18 +380,16 @@
 
         <div id="screen-setup" class="screen active">
             
-            <div class="cloud-sync-box">
-                <label>🔗 Connect Google Apps Script Web App Endpoint</label>
-                <div class="sync-input-row">
-                    <input type="text" id="macro-endpoint-url" placeholder="Paste your deployed Google Web App URL here..." value="">
-                    <button class="btn-sync" onclick="fetchGoogleWorksheetsListing()">🔄 Sync Worksheets</button>
-                </div>
-                <span id="sync-status-indicator" style="font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--secondary-neon);">Unlinked</span>
+            <div class="cloud-sync-status-bar">
+                <div>📡 <span id="sync-status-indicator" style="color: var(--secondary-neon); font-weight: bold;">Connecting to Question Bank Server...</span></div>
+                <button class="btn-refresh-sheets" onclick="fetchGoogleWorksheetsListing()">🔄 Reload Tabs</button>
             </div>
 
             <div class="config-card">
-                <label>1. Select Sheet Worksheet (Active Set)</label>
-                <select id="bank-selector-dropdown" onchange="pullActiveSheetQuestionsData()"></select>
+                <label>1. Select Physics Question Set (Worksheet Tab)</label>
+                <select id="bank-selector-dropdown" onchange="pullActiveSheetQuestionsData()">
+                    <option>Loading cloud worksheets...</option>
+                </select>
 
                 <label style="margin-top: 15px;">2. Match Assignment Mode</label>
                 <select id="match-mode-select" onchange="adaptRosterInputs()">
@@ -456,11 +452,17 @@
         </div>
 
         <div class="broadcast-log" id="system-status-log">
-            SYSTEM STATUS: STANDBY. SYNC WITH APPS SCRIPT ENDPOINT TO POPULATE CLOUD WORKSHEETS.
+            SYSTEM STATUS: INITIALIZING CLOUD SYNC CONFIGURATION...
         </div>
     </div>
 
     <script>
+        // =========================================================================
+        // 🛠️ EMBED YOUR GOOGLE WEB APP LINK HERE
+        // =========================================================================
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYH1g1RvbLXl0Kmg7T8sEDDnyFUKANqQEzElp90hdsIz1RInoP4v_NYIZTamaCwBZgOw/exec";
+        // =========================================================================
+
         // --- SYNTHESIZED SOUND CARD ---
         const WebAudioContext = window.AudioContext || window.webkitAudioContext;
         let audioContext = null;
@@ -542,18 +544,18 @@
             {q: "Fall back physics check: Density equals?", ans: ["Mass x Volume", "Volume/Mass", "Mass/Volume", "Force/Area"], correct: 2}
         ];
 
-        // --- FETCHING ACTIONS USING APPS SCRIPT MIDDLWARE ---
+        // --- FETCHING ACTIONS USING APPS SCRIPT MIDDLEWARE ---
         function fetchGoogleWorksheetsListing() {
-            let endpoint = document.getElementById('macro-endpoint-url').value.trim();
-            if (!endpoint) {
-                alert("Please enter a valid Google Apps Script Deployment Web App URL.");
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "PASTE_YOUR_WEB_APP_URL_HERE") {
+                document.getElementById('sync-status-indicator').innerText = "⚠️ Missing Web App Endpoint Link";
+                document.getElementById('system-status-log').innerText = "SYSTEM ERROR: Edit the HTML file to paste your Deployed Apps Script Web App URL.";
                 return;
             }
-            localStorage.setItem('retro_cup_sheets_endpoint', endpoint);
+            
             document.getElementById('sync-status-indicator').innerText = "Querying worksheets structure...";
             triggerBroadcastAudio('click');
 
-            fetch(`${endpoint}?action=getSheets`)
+            fetch(`${APPS_SCRIPT_URL}?action=getSheets`)
                 .then(res => res.json())
                 .then(json => {
                     if (json.sheets && json.sheets.length > 0) {
@@ -576,23 +578,22 @@
                 })
                 .catch(err => {
                     console.error(err);
-                    document.getElementById('sync-status-indicator').innerText = "❌ Connection failed. Check CORS / Deployment Settings.";
+                    document.getElementById('sync-status-indicator').innerText = "❌ Connection failed. Check Script Deploy Settings.";
                 });
         }
 
         function pullActiveSheetQuestionsData() {
-            let endpoint = document.getElementById('macro-endpoint-url').value.trim();
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "PASTE_YOUR_WEB_APP_URL_HERE") return;
             let selectedTab = document.getElementById('bank-selector-dropdown').value;
-            if (!endpoint || !selectedTab) return;
+            if (!selectedTab) return;
 
             document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Synchronizing data rows from "${selectedTab}"...`;
 
-            fetch(`${endpoint}?action=getSheetData&sheetName=${encodeURIComponent(selectedTab)}`)
+            fetch(`${APPS_SCRIPT_URL}?action=getSheetData&sheetName=${encodeURIComponent(selectedTab)}`)
                 .then(res => res.json())
                 .then(json => {
                     if (json.data && json.data.length > 1) {
                         let extracted = [];
-                        // Process spreadsheet rows sequentially, bypassing header lines
                         for (let i = 0; i < json.data.length; i++) {
                             let row = json.data[i];
                             let qText = row[1] ? String(row[1]).trim() : "";
@@ -618,7 +619,7 @@
 
                         if (extracted.length > 0) {
                             activeQuestionBank = extracted;
-                            document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Loaded ${extracted.length} questions from tab "${selectedTab}". ready for game run.`;
+                            document.getElementById('system-status-log').innerText = `SYSTEM STATUS: Loaded ${extracted.length} questions from tab "${selectedTab}". Ready to go!`;
                         } else {
                             document.getElementById('system-status-log').innerText = `⚠️ Warning: Tab "${selectedTab}" contains zero properly structured questions.`;
                         }
@@ -631,15 +632,11 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            let savedUrl = localStorage.getItem('retro_cup_sheets_endpoint');
-            if (savedUrl) {
-                document.getElementById('macro-endpoint-url').value = savedUrl;
-                fetchGoogleWorksheetsListing();
-            }
+            fetchGoogleWorksheetsListing();
             adaptRosterInputs();
         });
 
-        // --- GAME MECHANICS AND STATE TRUCKERS ---
+        // --- GAME MECHANICS AND STATE TRACKERS ---
         let activeMatchMode = "solo_striker"; 
         let profileNames = { p1: "STRIKER P1", p2: "KEEPER CPU" };
         let matchScores = {
@@ -1157,7 +1154,7 @@
 
             ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6;
             ctx.beginPath(); ctx.moveTo(netConfig.leftX, netConfig.bottomY); ctx.lineTo(netConfig.leftX, netConfig.topY);
-            ctx.lineTo(netConfig.rightX, netConfig.topY); ctx.lineTo(netConfig.rightX, netConfig.bottomY); ctx.stroke();
+            ctx.lineTo(netConfig.rightX, netConfig.topY); ctx.lineTo(netConfig.rightX, netConfig.bottomY); stroke();
 
             ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath();
             ctx.ellipse(assetsBall.x, assetsBall.shadowY, assetsBall.radius * 1.2, assetsBall.radius * 0.6, 0, 0, Math.PI * 2); ctx.fill();
